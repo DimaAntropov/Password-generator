@@ -1,17 +1,22 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import random
 import string
+import os
 from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = 'your_strong_and_unique_secret_key'
 
-# Временное хранилище пользователей (замените на базу данных при необходимости)
+# Пути к файлам
+USER_FILE_PATH = r'\\192.168.3.250\Veda\3 курс\ИСП 32\Разработка web приложения\Антропов и Леконцев\генерация поролей\User.txt'
+PASSWORD_FILE_PATH = r'\\192.168.3.250\Veda\3 курс\ИСП 32\Разработка web приложения\Антропов и Леконцев\генерация поролей\Pasword.txt'
+
+# Изначальные пользователи
 USER_CREDENTIALS = {
     "Танк": "Железный"
 }
 
-# --- Декоратор для проверки авторизации ---
+# Декоратор для проверки входа
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -20,7 +25,16 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# --- Генерация пароля (без изменений) ---
+# Функции для сохранения в файлы
+def save_user_to_file(username, password):
+    with open(USER_FILE_PATH, 'a', encoding='utf-8') as f:
+        f.write(f'{username}:{password}\n')
+
+def save_password_to_file(username, password):
+    with open(PASSWORD_FILE_PATH, 'a', encoding='utf-8') as f:
+        f.write(f'{username}:{password}\n')
+
+# Генерация пароля
 def generate_password(length, use_lowercase, use_uppercase, use_digits, use_symbols):
     characters = ''
     if use_lowercase:
@@ -31,14 +45,12 @@ def generate_password(length, use_lowercase, use_uppercase, use_digits, use_symb
         characters += string.digits
     if use_symbols:
         characters += string.punctuation
-
     if not characters:
-        return "Ошибка: вы должны выбрать хотя бы один тип символов."
+        return "Ошибка: выберите хотя бы один тип символов."
     length = max(4, min(length, 128))
-    password = ''.join(random.choice(characters) for i in range(length))
+    password = ''.join(random.choice(characters) for _ in range(length))
     return password
 
-# --- Главная страница (генератор паролей) ---
 @app.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
@@ -62,7 +74,8 @@ def index():
                 password = "Ошибка: выберите хотя бы один тип символов."
             else:
                 password = generate_password(length, use_lowercase, use_uppercase, use_digits, use_symbols)
-
+                # Сохраняем сгенерированный пароль в файл
+                save_password_to_file(username, password)
         except (ValueError, TypeError):
             password = "Ошибка: пожалуйста, введите действительную длину."
 
@@ -77,7 +90,6 @@ def index():
         username=username
     )
 
-# --- Вход ---
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
@@ -87,44 +99,36 @@ def login():
         if username in USER_CREDENTIALS and USER_CREDENTIALS[username] == password:
             session['logged_in'] = True
             session['username'] = username
-            next_url = request.args.get('next') or url_for('index')
-            return redirect(next_url)
+            return redirect(url_for('index'))
         else:
             error = 'Неправильный логин или пароль.'
     return render_template('login.html', error=error)
 
-# --- Выход ---
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
     session.pop('username', None)
     return redirect(url_for('login'))
 
-# --- Регистрация ---
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     error = None
     if request.method == 'POST':
         username = request.form['username']
-        email = request.form['email']
         password = request.form['password']
         confirm_password = request.form['confirm_password']
-
-        # Проверка уникальности логина
         if username in USER_CREDENTIALS:
             error = 'Этот логин уже занят.'
-        # Проверка совпадения паролей
         elif password != confirm_password:
             error = 'Пароли не совпадают.'
         else:
-            # Регистрация нового пользователя
+            # Сохраняем в файлы
+            save_user_to_file(username, password)
             USER_CREDENTIALS[username] = password
-            # Можно сразу авторизовать или попросить войти
             session['logged_in'] = True
             session['username'] = username
             return redirect(url_for('index'))
-
     return render_template('register.html', error=error)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=5100)
