@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Вход</title>
+<style>
+  /* Градиентный фон */
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #ff7e5f, #feb47b, #86a8e7);
+  background-size: 600% 600%;
+  animation: gradientAnimation 15s ease infinite;
+}
+
+/* Анимация градиента */
+@keyframes gradientAnimation {
+  0% {background-position: 0% 50%;}
+  50% {background-position: 100% 50%;}
+  100% {background-position: 0% 50%;}
+}
+
+/* Контейнер */
+.container {
+  background: #fff;
+  padding: 35px 30px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  max-width: 400px;
+  width: 90%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: center;
+}
+
+/* Заголовок "Добро пожаловать" — делаем его чуть крупнее и выравниваем */
+h1 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 2.2em;
+  color: #222;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Сообщения об ошибке */
+.error {
+  background-color: #ffe0e0;
+  color: #d9534f;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-size: 0.95em;
+  border: 1px solid #f5c6cb;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+/* Поля ввода */
+input[type="text"],
+input[type="password"] {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 20px;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  font-size: 1em;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+input[type="text"]:focus,
+input[type="password"]:focus {
+  border-color: #66a6ff;
+  box-shadow: 0 0 8px rgba(102, 166, 255, 0.3);
+}
+
+/* Кнопка входа */
+input[type="submit"] {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #66a6ff, #89f7fe);
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+input[type="submit"]:hover {
+  background: linear-gradient(135deg, #89f7fe, #66a6ff);
+  transform: translateY(-2px);
+}
+
+/* Подсказка */
+.hint {
+  margin-top: 20px;
+  font-size: 0.9em;
+  color: #555;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Добро пожаловать</h1>
+
+  {% if error %}
+  <div class="error">{{ error }}</div>
+  {% endif %}
+
+  <form method="post" style="margin-top: 10px; text-align: center;">
+    <label for="username">Логин</label>
+    <input type="text" id="username" name="username" placeholder="Введите логин" required />
+
+    <label for="password">Пароль</label>
+    <input type="password" id="password" name="password" placeholder="Введите пароль" required />
+
+    <input type="submit" value="Войти" />
+  </form>
+
+  
+  <div style="margin-top: 15px; text-align: center;">
+    <a href="{{ url_for('register') }}" style="text-decoration: none; padding: 10px 20px; background-color: #66a6ff; color: #fff; border-radius: 8px; font-weight: 600;">Зарегистрироваться</a>
+  </div>
+
+  <div class="hint" style="margin-top: 10px;">
+    <small>(Логин: <b>Танк</b>, Пароль: <b>Железный</b>)</small>
+  </div>
+</div>
+</body>
+</html>
+ыы
